@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>English Dictation Practice</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Literata:opsz,wght@7..72,400;7..72,600&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <h1 class="logo">Dictation<span>Lab</span></h1>
+      <nav class="mode-nav" role="tablist">
+        <button class="mode-btn active" data-mode="setup" role="tab" aria-selected="true">Article</button>
+        <button class="mode-btn" data-mode="read" role="tab" aria-selected="false" disabled>Read</button>
+        <button class="mode-btn" data-mode="dictate" role="tab" aria-selected="false" disabled>Dictate</button>
+        <button class="mode-btn" data-mode="wordbook" role="tab" aria-selected="false">Wordbook</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main">
+    <!-- Setup: load article -->
+    <section id="panel-setup" class="panel active">
+      <div class="card setup-card">
+        <h2>Load Your Article</h2>
+        <p class="hint">Paste or type an English article. You'll read it first, then practice sentence-by-sentence dictation.</p>
+
+        <label class="field-label" for="article-title">Title (optional)</label>
+        <input type="text" id="article-title" class="input" placeholder="e.g. The Power of Habit">
+
+        <label class="field-label" for="article-text">Article text</label>
+        <textarea id="article-text" class="textarea" rows="14" placeholder="Paste your English article here..."></textarea>
+
+        <div class="sample-row">
+          <span>Or try a sample:</span>
+          <button type="button" class="btn btn-ghost" id="load-sample">Load sample article</button>
+        </div>
+
+        <button type="button" class="btn btn-primary btn-lg" id="start-reading">Start Reading →</button>
+      </div>
+    </section>
+
+    <!-- Reading mode -->
+    <section id="panel-read" class="panel">
+      <div class="read-layout">
+        <article class="card article-card">
+          <header class="article-header">
+            <div class="title-row">
+              <h2 id="read-title">Article</h2>
+              <button type="button" class="speaker-btn" id="read-article" title="Read article aloud" aria-label="Read article">
+                🔊
+              </button>
+            </div>
+            <p class="read-tip">Click any word to see its meaning. Add useful words to your wordbook.</p>
+          </header>
+          <div id="article-content" class="article-content"></div>
+          <footer class="article-footer">
+            <button type="button" class="btn btn-primary btn-lg" id="go-dictate">I'm ready — Start Dictation →</button>
+          </footer>
+        </article>
+
+        <aside id="definition-panel" class="definition-panel hidden">
+          <button type="button" class="close-btn" id="close-definition" aria-label="Close">×</button>
+          <div class="def-word-row">
+            <h3 id="def-word" class="def-word"></h3>
+            <button type="button" class="speaker-btn" id="speak-word" title="Pronounce word" aria-label="Pronounce word">🔊</button>
+          </div>
+          <div id="def-content" class="def-content">
+            <p class="def-loading">Looking up definition…</p>
+          </div>
+          <button type="button" class="btn btn-secondary" id="add-to-wordbook">+ Add to Wordbook</button>
+        </aside>
+      </div>
+    </section>
+
+    <!-- Dictation mode -->
+    <section id="panel-dictate" class="panel">
+      <div class="card dictate-card">
+        <div class="dictate-header">
+          <div>
+            <h2>Sentence Dictation</h2>
+            <p class="hint">The sentence loops until you click Stop. Press Enter to check; after it's correct, press Enter again for the next sentence. Capitalization and punctuation are ignored.</p>
+          </div>
+          <div class="progress-badge">
+            <span id="sentence-index">1</span> / <span id="sentence-total">0</span>
+          </div>
+        </div>
+
+        <div class="controls-row">
+          <div class="control-group">
+            <label for="speed-range">Speed</label>
+            <div class="speed-control">
+              <span class="speed-label">Slow</span>
+              <input type="range" id="speed-range" min="0.5" max="1.5" step="0.1" value="0.85">
+              <span class="speed-label">Fast</span>
+              <output id="speed-value" class="speed-value">0.85×</output>
+            </div>
+          </div>
+          <div class="control-group">
+            <label for="voice-select">Voice</label>
+            <select id="voice-select" class="select"></select>
+          </div>
+          <button type="button" class="btn btn-secondary" id="play-sentence" title="Stop looping playback">
+            <span class="play-icon">■</span> Stop
+          </button>
+        </div>
+
+        <div class="progress-bar-wrap">
+          <div id="progress-bar" class="progress-bar"></div>
+        </div>
+
+        <div class="dictate-area">
+          <label class="field-label" for="dictation-input">Type what you hear</label>
+          <div class="dictate-input-wrap">
+            <textarea id="dictation-input" class="textarea dictate-input" rows="4" placeholder="Start typing after you listen…"></textarea>
+            <div id="dictation-overlay" class="dictation-overlay hidden" aria-hidden="true"></div>
+          </div>
+
+          <div id="feedback" class="feedback hidden"></div>
+
+          <div class="dictate-actions">
+            <button type="button" class="btn btn-primary" id="check-answer">Check Answer</button>
+            <button type="button" class="btn btn-ghost hidden" id="next-sentence">Next Sentence →</button>
+            <button type="button" class="btn btn-ghost" id="show-hint">Show Hint</button>
+          </div>
+        </div>
+
+        <div id="completion" class="completion hidden">
+          <div class="completion-icon">✓</div>
+          <h3>Dictation Complete!</h3>
+          <p>You've finished all sentences in this article. Great work!</p>
+          <button type="button" class="btn btn-primary" id="restart-dictate">Practice Again</button>
+          <button type="button" class="btn btn-ghost" id="new-article">Load New Article</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Wordbook -->
+    <section id="panel-wordbook" class="panel">
+      <div class="card wordbook-card">
+        <div class="wordbook-header">
+          <h2>My Wordbook</h2>
+          <button type="button" class="btn btn-ghost btn-danger" id="clear-wordbook">Clear All</button>
+        </div>
+        <p id="wordbook-empty" class="hint">No words saved yet. Click words while reading to build your wordbook.</p>
+        <ul id="wordbook-list" class="wordbook-list"></ul>
+      </div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
